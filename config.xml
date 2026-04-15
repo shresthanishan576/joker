@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget id="com.jokergame.app" version="1.0.0">
+  <name>Joker Game</name>
+  <description>Card Game APK</description>
+  <author>YourName</author>
+
+  <content src="index.html" />
+  <access origin="*" />
+</widget>
