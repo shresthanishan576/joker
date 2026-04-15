@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joker Game</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#0b3d2e;
+color:white;
+text-align:center;
+}
+
+h2{margin:10px;}
+
+.table{
+display:flex;
+flex-direction:column;
+gap:10px;
+padding:10px;
+}
+
+.player{
+border:1px solid white;
+border-radius:10px;
+padding:5px;
+}
+
+.cards{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.card{
+width:55px;
+height:80px;
+margin:3px;
+border-radius:8px;
+background-size:cover;
+background-position:center;
+cursor:pointer;
+}
+
+.back{
+background-image:url("https://deckofcardsapi.com/static/img/back.png");
+}
+
+button{
+padding:10px;
+margin:10px;
+border:none;
+border-radius:6px;
+background:gold;
+font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🃏 Joker Game APK</h2>
+<p id="status">Start Game</p>
+<button onclick="start()">Start</button>
+
+<div class="table" id="table"></div>
+
+<script>
+const suits=["♠","♥","♦","♣"];
+const values=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+
+let players=[];
+let current=0;
+let run=false;
+
+function deck(){
+let d=[];
+suits.forEach(s=>values.forEach(v=>d.push(v+s)));
+d.push("🃏");
+return d.sort(()=>Math.random()-0.5);
+}
+
+function deal(d){
+players=[[],[],[],[]];
+let i=0;
+while(d.length){
+players[i++%4].push(d.pop());
+}
+}
+
+function removePairs(h){
+let count={},res=[],used={};
+
+h.forEach(c=>{
+let k=c==="🃏"?c:c.slice(0,-1);
+count[k]=(count[k]||0)+1;
+});
+
+h.forEach(c=>{
+let k=c==="🃏"?c:c.slice(0,-1);
+if(k!=="🃏" && count[k]>=2 && !used[k]){
+used[k]=true;
+}else res.push(c);
+});
+
+return res;
+}
+
+function img(card){
+if(card==="🃏") return "https://deckofcardsapi.com/static/img/X1.png";
+let v=card.slice(0,-1);
+let s=card.slice(-1);
+let m={"♠":"S","♥":"H","♦":"D","♣":"C"};
+return `https://deckofcardsapi.com/static/img/${v}${m[s]}.png`;
+}
+
+function render(){
+let t=document.getElementById("table");
+t.innerHTML="";
+
+document.getElementById("status").innerText=
+"Player "+(current+1)+" turn";
+
+players.forEach((h,i)=>{
+let d=document.createElement("div");
+d.className="player";
+d.innerHTML="<b>P"+(i+1)+"</b>";
+
+let cd=document.createElement("div");
+cd.className="cards";
+
+h.forEach((c,j)=>{
+let div=document.createElement("div");
+div.className="card";
+
+if(i===current){
+div.style.backgroundImage=`url(${img(c)})`;
+}else{
+div.classList.add("back");
+div.onclick=()=>pick(i,j);
+}
+
+cd.appendChild(div);
+});
+
+d.appendChild(cd);
+t.appendChild(d);
+});
+}
+
+function pick(i,j){
+if(!run) return;
+
+let card=players[i].splice(j,1)[0];
+players[current].push(card);
+
+players[current]=removePairs(players[current]);
+
+next();
+}
+
+function next(){
+current=current%players.length;
+render();
+}
+
+function start(){
+run=true;
+current=0;
+
+let d=deck();
+deal(d);
+
+players=players.map(removePairs);
+
+render();
+}
+</script>
+
+</body>
+</html>
