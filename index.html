@@ -1,183 +1,533 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Joker Game</title>
-
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#0b3d2e;
-color:white;
-text-align:center;
+:root {
+  --green: #0b5e3a;
+  --felt:  #0d7a4e;
+  --gold:  #f0c040;
+  --dark:  #071f14;
+  --cw: 58px;
+  --ch: 84px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+font-family: Georgia, serif;
+background: radial-gradient(ellipse at center, var(–felt) 0%, var(–green) 55%, var(–dark) 100%);
+min-height: 100vh;
+color: #fff;
+overflow-x: hidden;
 }
 
-h2{margin:10px;}
-
-.table{
-display:flex;
-flex-direction:column;
-gap:10px;
-padding:10px;
+h1 {
+text-align: center;
+font-size: 1.4rem;
+padding: 14px 8px 4px;
+color: var(–gold);
+letter-spacing: 2px;
+text-shadow: 0 2px 8px #000a;
 }
 
-.player{
-border:1px solid white;
-border-radius:10px;
-padding:5px;
+#status {
+text-align: center;
+font-size: 0.95rem;
+font-weight: bold;
+padding: 6px 12px;
+margin: 6px auto;
+max-width: 380px;
+border-radius: 8px;
+background: rgba(0,0,0,0.4);
+border: 1px solid rgba(255,255,255,0.15);
+min-height: 32px;
+}
+#status.warn { background: rgba(160,20,20,0.6); }
+#status.good { background: rgba(10,110,60,0.65); }
+
+.controls { text-align: center; padding: 8px 0; }
+
+#btnStart {
+padding: 10px 28px;
+border: none;
+border-radius: 8px;
+background: var(–gold);
+color: #111;
+font-size: 1rem;
+font-weight: bold;
+cursor: pointer;
+box-shadow: 0 3px 12px #0008;
+}
+#btnStart:disabled { opacity: 0.4; cursor: default; }
+
+.table {
+display: flex;
+flex-direction: column;
+gap: 8px;
+padding: 8px;
+max-width: 680px;
+margin: 0 auto;
 }
 
-.cards{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
+.player {
+border: 2px solid rgba(255,255,255,0.18);
+border-radius: 12px;
+padding: 8px;
+background: rgba(0,0,0,0.22);
+}
+.player.active    { border-color: var(–gold); background: rgba(240,192,64,0.1); }
+.player.eliminated{ opacity: 0.35; }
+
+.plabel {
+font-size: 0.78rem;
+color: var(–gold);
+margin-bottom: 6px;
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+gap: 5px;
+}
+.badge {
+font-size: 0.62rem;
+padding: 2px 5px;
+border-radius: 4px;
+font-family: Arial, sans-serif;
+font-weight: bold;
+}
+.b-you  { background: var(–gold);  color: #111; }
+.b-pick { background: #27ae60;      color: #fff; }
+.b-from { background: #e74c3c;      color: #fff; }
+.b-out  { background: #555;         color: #aaa; }
+
+.cards {
+display: flex;
+flex-wrap: wrap;
+gap: 4px;
 }
 
-.card{
-width:55px;
-height:80px;
-margin:3px;
-border-radius:8px;
-background-size:cover;
-background-position:center;
-cursor:pointer;
+.card {
+width: var(–cw);
+height: var(–ch);
+border-radius: 7px;
+border: 2px solid transparent;
+position: relative;
+flex-shrink: 0;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+padding: 3px 4px;
+font-family: Arial, sans-serif;
+font-weight: bold;
+font-size: 0.72rem;
+user-select: none;
+overflow: hidden;
+background: #fff;
+cursor: default;
+transition: transform 0.13s, box-shadow 0.13s;
+}
+.card.red   { color: #c0392b; }
+.card.black { color: #111; }
+
+.card .top { align-self: flex-start; line-height: 1.1; }
+.card .mid {
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%);
+font-size: 1.3rem;
+line-height: 1;
+pointer-events: none;
+}
+.card .bot {
+align-self: flex-end;
+line-height: 1.1;
+transform: rotate(180deg);
 }
 
-.back{
-background-image:url("https://deckofcardsapi.com/static/img/back.png");
+.card.joker {
+background: linear-gradient(135deg, #fffbe6, #fff3c0);
+border: 2px solid var(–gold);
+color: #333;
+align-items: center;
+justify-content: center;
+font-size: 2rem;
 }
 
-button{
-padding:10px;
-margin:10px;
-border:none;
-border-radius:6px;
-background:gold;
-font-weight:bold;
+.card.back {
+background: repeating-linear-gradient(
+45deg,
+#1a3a8a 0, #1a3a8a 6px,
+#0d2060 6px, #0d2060 12px
+);
+border-color: #4466cc;
+}
+
+.card.pickable {
+cursor: pointer;
+border-color: #e74c3c;
+animation: glow 1s infinite alternate;
+}
+.card.pickable:active { transform: scale(0.92); }
+
+@keyframes glow {
+from { box-shadow: 0 0 5px #e74c3c88; }
+to   { box-shadow: 0 0 14px #e74c3cdd; }
+}
+
+#hint {
+text-align: center;
+font-size: 0.78rem;
+color: rgba(255,255,255,0.55);
+padding: 4px 10px 14px;
+font-family: Arial, sans-serif;
+}
+
+#overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.82);
+z-index: 99;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 16px;
+text-align: center;
+padding: 24px;
+}
+#overlay.show { display: flex; }
+#overlay h2 {
+font-size: 2rem;
+color: var(–gold);
+text-shadow: 0 0 24px var(–gold);
+}
+#overlay p { color: #ccc; font-size: 1rem; }
+#btnAgain {
+padding: 10px 28px;
+border: none;
+border-radius: 8px;
+background: var(–gold);
+color: #111;
+font-size: 1rem;
+font-weight: bold;
+cursor: pointer;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<h2>🃏 Joker Game APK</h2>
-<p id="status">Start Game</p>
-<button onclick="start()">Start</button>
-
+<h1>🃏 Joker — Old Maid</h1>
+<p id="status">Press Start to play</p>
+<div class="controls">
+  <button id="btnStart">Start Game</button>
+</div>
 <div class="table" id="table"></div>
+<p id="hint"></p>
+
+<div id="overlay">
+  <h2 id="ovTitle"></h2>
+  <p  id="ovMsg"></p>
+  <button id="btnAgain">Play Again</button>
+</div>
 
 <script>
-const suits=["♠","♥","♦","♣"];
-const values=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+(function () {
+  "use strict";
 
-let players=[];
-let current=0;
-let run=false;
+  var SUITS  = ["S","H","D","C"];
+  var VALS   = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  var SYM    = { S:"♠", H:"♥", D:"♦", C:"♣" };
+  var RED    = { H:true, D:true };
+  var JOKER  = "JOKER";
+  var NAMES  = ["You","CPU 2","CPU 3","CPU 4"];
+  var HUMAN  = 0;
 
-function deck(){
-let d=[];
-suits.forEach(s=>values.forEach(v=>d.push(v+s)));
-d.push("🃏");
-return d.sort(()=>Math.random()-0.5);
-}
+  var players  = [];
+  var current  = 0;
+  var offering = -1;
+  var active   = false;
+  var timer    = null;
 
-function deal(d){
-players=[[],[],[],[]];
-let i=0;
-while(d.length){
-players[i++%4].push(d.pop());
-}
-}
+  var elStatus  = document.getElementById("status");
+  var elTable   = document.getElementById("table");
+  var elHint    = document.getElementById("hint");
+  var elOverlay = document.getElementById("overlay");
+  var elOvTitle = document.getElementById("ovTitle");
+  var elOvMsg   = document.getElementById("ovMsg");
+  var btnStart  = document.getElementById("btnStart");
+  var btnAgain  = document.getElementById("btnAgain");
 
-function removePairs(h){
-let count={},res=[],used={};
+  btnStart.addEventListener("click", startGame);
+  btnAgain.addEventListener("click", function () {
+    elOverlay.classList.remove("show");
+    startGame();
+  });
 
-h.forEach(c=>{
-let k=c==="🃏"?c:c.slice(0,-1);
-count[k]=(count[k]||0)+1;
-});
+  /* ── Deck ── */
+  function buildDeck() {
+    var d = [];
+    SUITS.forEach(function (s) {
+      VALS.forEach(function (v) { d.push(v + s); });
+    });
+    var qi = d.indexOf("QS");
+    if (qi !== -1) d.splice(qi, 1);
+    d.push(JOKER);
+    return shuffle(d);
+  }
 
-h.forEach(c=>{
-let k=c==="🃏"?c:c.slice(0,-1);
-if(k!=="🃏" && count[k]>=2 && !used[k]){
-used[k]=true;
-}else res.push(c);
-});
+  function shuffle(arr) {
+    var i, j, tmp;
+    for (i = arr.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
 
-return res;
-}
+  function deal(deck) {
+    players = [[],[],[],[]];
+    deck.forEach(function (c, i) { players[i % 4].push(c); });
+  }
 
-function img(card){
-if(card==="🃏") return "https://deckofcardsapi.com/static/img/X1.png";
-let v=card.slice(0,-1);
-let s=card.slice(-1);
-let m={"♠":"S","♥":"H","♦":"D","♣":"C"};
-return `https://deckofcardsapi.com/static/img/${v}${m[s]}.png`;
-}
+  function rankOf(card) {
+    if (card === JOKER) return JOKER;
+    return card.slice(0, -1);
+  }
 
-function render(){
-let t=document.getElementById("table");
-t.innerHTML="";
+  function removePairs(hand) {
+    var changed = true, counts, rank, removed;
+    while (changed) {
+      changed = false;
+      counts = {};
+      hand.forEach(function (c) {
+        var r = rankOf(c);
+        if (r !== JOKER) counts[r] = (counts[r] || 0) + 1;
+      });
+      rank = null;
+      Object.keys(counts).forEach(function (r) {
+        if (rank === null && counts[r] >= 2) rank = r;
+      });
+      if (rank !== null) {
+        removed = 0;
+        hand = hand.filter(function (c) {
+          if (rankOf(c) === rank && removed < 2) { removed++; return false; }
+          return true;
+        });
+        changed = true;
+      }
+    }
+    return hand;
+  }
 
-document.getElementById("status").innerText=
-"Player "+(current+1)+" turn";
+  /* ── Card element ── */
+  function makeCard(card, isBack, isPickable) {
+    var div = document.createElement("div");
+    div.className = "card";
 
-players.forEach((h,i)=>{
-let d=document.createElement("div");
-d.className="player";
-d.innerHTML="<b>P"+(i+1)+"</b>";
+    if (isBack) {
+      div.classList.add("back");
+      if (isPickable) div.classList.add("pickable");
+      return div;
+    }
 
-let cd=document.createElement("div");
-cd.className="cards";
+    if (card === JOKER) {
+      div.classList.add("joker");
+      div.textContent = "🃏";
+      return div;
+    }
 
-h.forEach((c,j)=>{
-let div=document.createElement("div");
-div.className="card";
+    var suit = card.slice(-1);
+    var val  = card.slice(0, -1);
+    var sym  = SYM[suit];
 
-if(i===current){
-div.style.backgroundImage=`url(${img(c)})`;
-}else{
-div.classList.add("back");
-div.onclick=()=>pick(i,j);
-}
+    div.classList.add(RED[suit] ? "red" : "black");
 
-cd.appendChild(div);
-});
+    var top = document.createElement("span");
+    top.className = "top";
+    top.innerHTML = val + "<br>" + sym;
 
-d.appendChild(cd);
-t.appendChild(d);
-});
-}
+    var mid = document.createElement("span");
+    mid.className = "mid";
+    mid.textContent = sym;
 
-function pick(i,j){
-if(!run) return;
+    var bot = document.createElement("span");
+    bot.className = "bot";
+    bot.innerHTML = val + "<br>" + sym;
 
-let card=players[i].splice(j,1)[0];
-players[current].push(card);
+    div.appendChild(top);
+    div.appendChild(mid);
+    div.appendChild(bot);
+    return div;
+  }
 
-players[current]=removePairs(players[current]);
+  function cardName(card) {
+    if (card === JOKER) return "Joker";
+    return card.slice(0, -1) + SYM[card.slice(-1)];
+  }
 
-next();
-}
+  /* ── Game flow ── */
+  function startGame() {
+    clearTimeout(timer);
+    active   = true;
+    current  = 0;
+    offering = -1;
+    btnStart.disabled = true;
+    deal(buildDeck());
+    players = players.map(removePairs);
+    setStatus("Game started!", "");
+    setHint("");
+    advanceTurn();
+  }
 
-function next(){
-current=current%players.length;
-render();
-}
+  function nextWith(from) {
+    var idx = (from + 1) % 4;
+    var tries = 0;
+    while (players[idx].length === 0 && tries++ < 4) {
+      idx = (idx + 1) % 4;
+    }
+    return idx;
+  }
 
-function start(){
-run=true;
-current=0;
+  function checkEnd() {
+    var withCards = players.filter(function (h) { return h.length > 0; });
+    if (withCards.length > 1) return false;
+    var loser = -1;
+    players.forEach(function (h, i) {
+      if (h.indexOf(JOKER) !== -1) loser = i;
+    });
+    endGame(loser);
+    return true;
+  }
 
-let d=deck();
-deal(d);
+  function endGame(loser) {
+    active = false;
+    clearTimeout(timer);
+    var lost = loser === HUMAN;
+    elOvTitle.textContent = lost ? "😅 You Lost!" : "🎉 You Win!";
+    elOvMsg.textContent   = lost
+      ? "You are stuck with the Joker!"
+      : NAMES[loser] + " is left with the Joker!";
+    elOverlay.classList.add("show");
+    btnStart.disabled = false;
+    setStatus(elOvMsg.textContent, lost ? "warn" : "good");
+  }
 
-players=players.map(removePairs);
+  function advanceTurn() {
+    if (!active) return;
+    if (checkEnd()) return;
 
-render();
-}
+    var guard = 0;
+    while (players[current].length === 0 && guard++ < 4) {
+      current = (current + 1) % 4;
+    }
+
+    offering = nextWith(current);
+
+    if (players[offering].length === 0) {
+      current = nextWith(current);
+      advanceTurn();
+      return;
+    }
+
+    render();
+
+    if (current !== HUMAN) {
+      setStatus(NAMES[current] + " is thinking...", "");
+      setHint("");
+      timer = setTimeout(cpuMove, 900 + Math.floor(Math.random() * 700));
+    } else {
+      setStatus("Your turn — pick from " + NAMES[offering], "good");
+      setHint("Tap a red-bordered card to pick it.");
+    }
+  }
+
+  function cpuMove() {
+    if (!active) return;
+    var hand = players[offering];
+    if (!hand || hand.length === 0) { advanceTurn(); return; }
+    pickCard(offering, Math.floor(Math.random() * hand.length));
+  }
+
+  function pickCard(fromIdx, cardIdx) {
+    if (!active) return;
+    if (fromIdx !== offering) return;
+    var hand = players[fromIdx];
+    if (!hand || cardIdx >= hand.length) return;
+
+    var card = hand.splice(cardIdx, 1)[0];
+    players[current].push(card);
+    players[current] = removePairs(players[current]);
+
+    var who = (current === HUMAN) ? "You picked" : NAMES[current] + " picked";
+    setStatus(who + ": " + cardName(card), card === JOKER ? "warn" : "");
+    setHint("");
+
+    render();
+
+    var prev = current;
+    timer = setTimeout(function () {
+      current = nextWith(prev);
+      advanceTurn();
+    }, 800);
+  }
+
+  /* ── Render ── */
+  function render() {
+    elTable.innerHTML = "";
+
+    players.forEach(function (hand, pi) {
+      var wrap = document.createElement("div");
+      wrap.className = "player" +
+        (pi === current     ? " active"     : "") +
+        (hand.length === 0  ? " eliminated" : "");
+
+      var lbl = document.createElement("div");
+      lbl.className = "plabel";
+      lbl.innerHTML = NAMES[pi] +
+        ' <span style="opacity:0.5;font-size:0.7rem">(' + hand.length + ')</span>';
+      if (pi === HUMAN) lbl.innerHTML += ' <span class="badge b-you">YOU</span>';
+      if (pi === current && active) lbl.innerHTML += ' <span class="badge b-pick">PICKING</span>';
+      if (pi === offering && pi !== current && active && hand.length > 0)
+        lbl.innerHTML += ' <span class="badge b-from">OFFER</span>';
+      if (hand.length === 0) lbl.innerHTML += ' <span class="badge b-out">OUT</span>';
+      wrap.appendChild(lbl);
+
+      var row = document.createElement("div");
+      row.className = "cards";
+
+      hand.forEach(function (c, ci) {
+        var isBack     = (pi !== HUMAN);
+        var isPickable = (active && current === HUMAN && pi === offering);
+        var el = makeCard(c, isBack, isPickable);
+
+        if (isPickable) {
+          (function (capturedIdx) {
+            el.addEventListener("click", function () {
+              pickCard(pi, capturedIdx);
+            });
+          })(ci);
+        }
+
+        row.appendChild(el);
+      });
+
+      wrap.appendChild(row);
+      elTable.appendChild(wrap);
+    });
+  }
+
+  function setStatus(msg, cls) {
+    elStatus.textContent = msg;
+    elStatus.className   = cls || "";
+  }
+  function setHint(msg) {
+    elHint.textContent = msg;
+  }
+
+})();
 </script>
 
 </body>
