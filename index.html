@@ -6,526 +6,559 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Joker Game</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+
 :root {
-  --green: #0b5e3a;
-  --felt:  #0d7a4e;
-  --gold:  #f0c040;
-  --dark:  #071f14;
-  --cw: 58px;
-  --ch: 84px;
+–felt:  #0d6b42;
+–felt2: #0a5234;
+–dark:  #061a0f;
+–gold:  #f0c040;
+–red:   #c0392b;
+–cw: 52px;
+–ch: 76px;
+–brad: 7px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(–dark);}
 
-body {
-font-family: Georgia, serif;
-background: radial-gradient(ellipse at center, var(–felt) 0%, var(–green) 55%, var(–dark) 100%);
-min-height: 100vh;
-color: #fff;
-overflow-x: hidden;
+#root{
+width:100vw;height:100vh;position:relative;
+display:flex;align-items:stretch;
+background:radial-gradient(ellipse 70% 60% at 50% 50%,var(–felt) 0%,var(–felt2) 55%,var(–dark) 100%);
+overflow:hidden;
 }
-
-h1 {
-text-align: center;
-font-size: 1.4rem;
-padding: 14px 8px 4px;
-color: var(–gold);
-letter-spacing: 2px;
-text-shadow: 0 2px 8px #000a;
+#root::before{
+content:’’;position:absolute;inset:0;
+background-image:radial-gradient(circle,rgba(255,255,255,0.03) 1px,transparent 1px);
+background-size:18px 18px;pointer-events:none;z-index:0;
 }
 
-#status {
-text-align: center;
-font-size: 0.95rem;
-font-weight: bold;
-padding: 6px 12px;
-margin: 6px auto;
-max-width: 380px;
-border-radius: 8px;
-background: rgba(0,0,0,0.4);
-border: 1px solid rgba(255,255,255,0.15);
-min-height: 32px;
-}
-#status.warn { background: rgba(160,20,20,0.6); }
-#status.good { background: rgba(10,110,60,0.65); }
-
-.controls { text-align: center; padding: 8px 0; }
-
-#btnStart {
-padding: 10px 28px;
-border: none;
-border-radius: 8px;
-background: var(–gold);
-color: #111;
-font-size: 1rem;
-font-weight: bold;
-cursor: pointer;
-box-shadow: 0 3px 12px #0008;
-}
-#btnStart:disabled { opacity: 0.4; cursor: default; }
-
-.table {
-display: flex;
-flex-direction: column;
-gap: 8px;
-padding: 8px;
-max-width: 680px;
-margin: 0 auto;
+#table{
+position:relative;flex:1;
+display:grid;
+grid-template-columns:120px 1fr 120px;
+grid-template-rows:100px 1fr 130px;
+width:100%;height:100%;z-index:1;
 }
 
-.player {
-border: 2px solid rgba(255,255,255,0.18);
-border-radius: 12px;
-padding: 8px;
-background: rgba(0,0,0,0.22);
+/* CENTER */
+#center{
+grid-column:2;grid-row:2;
+display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
 }
-.player.active    { border-color: var(–gold); background: rgba(240,192,64,0.1); }
-.player.eliminated{ opacity: 0.35; }
-
-.plabel {
-font-size: 0.78rem;
-color: var(–gold);
-margin-bottom: 6px;
-display: flex;
-flex-wrap: wrap;
-align-items: center;
-gap: 5px;
+#deckPile{position:relative;width:var(–cw);height:var(–ch);}
+.deckCard{
+position:absolute;width:var(–cw);height:var(–ch);border-radius:var(–brad);
+background:repeating-linear-gradient(45deg,#1a3a8a 0,#1a3a8a 5px,#0d2060 5px,#0d2060 10px);
+border:2px solid #4466cc;
 }
-.badge {
-font-size: 0.62rem;
-padding: 2px 5px;
-border-radius: 4px;
-font-family: Arial, sans-serif;
-font-weight: bold;
-}
-.b-you  { background: var(–gold);  color: #111; }
-.b-pick { background: #27ae60;      color: #fff; }
-.b-from { background: #e74c3c;      color: #fff; }
-.b-out  { background: #555;         color: #aaa; }
-
-.cards {
-display: flex;
-flex-wrap: wrap;
-gap: 4px;
+#status{
+font-family:‘Cinzel’,serif;font-size:0.68rem;color:var(–gold);
+text-align:center;text-shadow:0 1px 6px #000a;max-width:160px;
+line-height:1.4;padding:5px 9px;
+background:rgba(0,0,0,0.5);border:1px solid rgba(240,192,64,0.25);border-radius:8px;
 }
 
-.card {
-width: var(–cw);
-height: var(–ch);
-border-radius: 7px;
-border: 2px solid transparent;
-position: relative;
-flex-shrink: 0;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-padding: 3px 4px;
-font-family: Arial, sans-serif;
-font-weight: bold;
-font-size: 0.72rem;
-user-select: none;
-overflow: hidden;
-background: #fff;
-cursor: default;
-transition: transform 0.13s, box-shadow 0.13s;
-}
-.card.red   { color: #c0392b; }
-.card.black { color: #111; }
+/* SEATS */
+.seat{display:flex;align-items:center;justify-content:center;position:relative;}
+#seat-top{grid-column:2;grid-row:1;flex-direction:column;gap:4px;}
+#seat-left{grid-column:1;grid-row:2;flex-direction:column;gap:4px;}
+#seat-right{grid-column:3;grid-row:2;flex-direction:column;gap:4px;}
+#seat-bottom{grid-column:2;grid-row:3;flex-direction:column;gap:6px;padding-bottom:4px;}
 
-.card .top { align-self: flex-start; line-height: 1.1; }
-.card .mid {
-position: absolute;
-top: 50%; left: 50%;
-transform: translate(-50%, -50%);
-font-size: 1.3rem;
-line-height: 1;
-pointer-events: none;
+.plabel{
+font-family:‘Cinzel’,serif;font-size:0.6rem;color:var(–gold);
+letter-spacing:1px;display:flex;align-items:center;gap:4px;
+background:rgba(0,0,0,0.45);border:1px solid rgba(240,192,64,0.2);
+border-radius:6px;padding:2px 7px;white-space:nowrap;
+transition:box-shadow .25s,border-color .25s;
 }
-.card .bot {
-align-self: flex-end;
-line-height: 1.1;
-transform: rotate(180deg);
-}
+.plabel.active-seat{box-shadow:0 0 0 2px var(–gold);border-color:var(–gold);}
+.cnt{opacity:.5;font-size:.55rem;}
+.badge{font-size:.5rem;padding:1px 4px;border-radius:3px;font-weight:700;font-family:sans-serif;}
+.b-you  {background:var(–gold);color:#111;}
+.b-pick {background:#27ae60;color:#fff;}
+.b-offer{background:#e74c3c;color:#fff;}
+.b-out  {background:#444;color:#888;}
+.b-joker{background:#8e44ad;color:#fff;}
 
-.card.joker {
-background: linear-gradient(135deg, #fffbe6, #fff3c0);
-border: 2px solid var(–gold);
-color: #333;
-align-items: center;
-justify-content: center;
-font-size: 2rem;
-}
+/* HAND containers */
+.hand{display:flex;align-items:center;justify-content:center;position:relative;}
+#seat-top    .hand{position:relative;height:var(–ch);width:100%;}
+#seat-bottom .hand{position:relative;height:var(–ch);width:100%;max-width:480px;}
+#seat-left   .hand,
+#seat-right  .hand{position:relative;width:var(–cw);height:200px;}
 
-.card.back {
-background: repeating-linear-gradient(
-45deg,
-#1a3a8a 0, #1a3a8a 6px,
-#0d2060 6px, #0d2060 12px
-);
-border-color: #4466cc;
+/* CARD base */
+.card{
+position:absolute;
+width:var(–cw);height:var(–ch);border-radius:var(–brad);
+border:1.5px solid transparent;
+display:flex;flex-direction:column;justify-content:space-between;
+padding:2px 3px;
+font-family:‘Crimson Pro’,serif;font-weight:600;font-size:.68rem;
+user-select:none;overflow:hidden;background:#fff;cursor:default;
+transition:transform .15s,box-shadow .15s;will-change:transform;
 }
-
-.card.pickable {
-cursor: pointer;
-border-color: #e74c3c;
-animation: glow 1s infinite alternate;
+.card.red  {color:#c0392b;}
+.card.black{color:#111;}
+.card .top{align-self:flex-start;line-height:1.1;}
+.card .mid{
+position:absolute;top:50%;left:50%;
+transform:translate(-50%,-50%);
+font-size:1.25rem;line-height:1;pointer-events:none;
 }
-.card.pickable:active { transform: scale(0.92); }
-
-@keyframes glow {
-from { box-shadow: 0 0 5px #e74c3c88; }
-to   { box-shadow: 0 0 14px #e74c3cdd; }
+.card .bot{align-self:flex-end;line-height:1.1;transform:rotate(180deg);}
+.card.joker{
+background:linear-gradient(135deg,#fffbe6,#fff3c0);
+border:2px solid var(–gold);color:#333;
+align-items:center;justify-content:center;font-size:1.8rem;
+}
+.card.back{
+background:repeating-linear-gradient(45deg,#1a3a8a 0,#1a3a8a 5px,#0d2060 5px,#0d2060 10px);
+border-color:#4466cc;
 }
 
-#hint {
-text-align: center;
-font-size: 0.78rem;
-color: rgba(255,255,255,0.55);
-padding: 4px 10px 14px;
-font-family: Arial, sans-serif;
+/* Pickable */
+.card.pickable{cursor:pointer;border-color:var(–red);animation:glowR .9s infinite alternate;}
+.card.pickable:hover{transform:translateY(-12px) scale(1.07)!important;z-index:60!important;}
+@keyframes glowR{from{box-shadow:0 0 4px #e74c3c66;}to{box-shadow:0 0 18px #e74c3cbb;}}
+
+/* Dragging */
+.card.dragging{opacity:.7;z-index:999!important;cursor:grabbing!important;box-shadow:0 12px 30px #000b!important;transition:none!important;}
+.card.drag-over{box-shadow:0 0 0 3px var(–gold)!important;}
+
+/* Hover lift on human hand */
+#seat-bottom .hand .card:not(.back):hover{transform:translateY(-13px)!important;z-index:55!important;}
+
+/* Deal animation */
+@keyframes dealIn{
+from{transform:translate(var(–dx),var(–dy)) scale(.35) rotate(var(–dr));opacity:0;}
+to{opacity:1;}
+}
+.card.dealing{animation:dealIn .38s cubic-bezier(.25,.8,.25,1) both;}
+
+/* Gold pick flash */
+.pick-flash{
+position:absolute;
+width:calc(var(–cw)+8px);height:calc(var(–ch)+8px);
+border-radius:var(–brad);border:3px solid var(–gold);
+box-shadow:0 0 20px var(–gold);pointer-events:none;
+animation:flashP .5s ease-out forwards;z-index:100;
+}
+@keyframes flashP{0%{opacity:1;transform:scale(1.1);}100%{opacity:0;transform:scale(1.5);}}
+
+/* HINT */
+#hint{
+position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+font-family:‘Crimson Pro’,serif;font-style:italic;font-size:.72rem;
+color:rgba(255,255,255,.48);white-space:nowrap;pointer-events:none;z-index:2;
 }
 
-#overlay {
-display: none;
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.82);
-z-index: 99;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 16px;
-text-align: center;
-padding: 24px;
+/* TITLE */
+#title{
+position:absolute;top:7px;left:50%;transform:translateX(-50%);
+font-family:‘Cinzel’,serif;font-size:.85rem;color:var(–gold);
+letter-spacing:3px;text-shadow:0 1px 8px #000c;white-space:nowrap;
+pointer-events:none;z-index:2;
 }
-#overlay.show { display: flex; }
-#overlay h2 {
-font-size: 2rem;
-color: var(–gold);
-text-shadow: 0 0 24px var(–gold);
+
+/* OVERLAY */
+#overlay{
+display:none;position:fixed;inset:0;
+background:rgba(0,0,0,.88);z-index:200;
+flex-direction:column;align-items:center;justify-content:center;
+gap:18px;text-align:center;padding:24px;
 }
-#overlay p { color: #ccc; font-size: 1rem; }
-#btnAgain {
-padding: 10px 28px;
-border: none;
-border-radius: 8px;
-background: var(–gold);
-color: #111;
-font-size: 1rem;
-font-weight: bold;
-cursor: pointer;
+#overlay.show{display:flex;}
+#overlay h2{font-family:‘Cinzel’,serif;font-size:2rem;color:var(–gold);text-shadow:0 0 30px var(–gold);}
+#overlay p{color:#ccc;font-size:1rem;font-family:‘Crimson Pro’,serif;line-height:1.6;}
+.ovBtn{
+padding:11px 30px;border:none;border-radius:8px;
+background:var(–gold);color:#111;font-size:1rem;font-weight:bold;
+cursor:pointer;font-family:‘Cinzel’,serif;letter-spacing:1px;
+box-shadow:0 4px 16px #0008;transition:transform .12s;
 }
+.ovBtn:active{transform:scale(.95);}
 </style>
 
 </head>
 <body>
+<div id="root">
+  <div id="title">🃏 JOKER — HOLD THE ACE</div>
 
-<h1>🃏 Joker — Old Maid</h1>
-<p id="status">Press Start to play</p>
-<div class="controls">
-  <button id="btnStart">Start Game</button>
+  <div id="table">
+    <!-- TOP: player 1 -->
+    <div class="seat" id="seat-top">
+      <div class="plabel" id="lbl-1"><span id="lname-1">CPU 2</span><span class="cnt" id="lcnt-1"></span></div>
+      <div class="hand"  id="hand-1"></div>
+    </div>
+    <!-- LEFT: player 3 -->
+    <div class="seat" id="seat-left">
+      <div class="plabel" id="lbl-3"><span id="lname-3">CPU 3</span><span class="cnt" id="lcnt-3"></span></div>
+      <div class="hand"  id="hand-3"></div>
+    </div>
+    <!-- CENTER -->
+    <div id="center">
+      <div id="deckPile"></div>
+      <div id="status">Press Start</div>
+    </div>
+    <!-- RIGHT: player 2 -->
+    <div class="seat" id="seat-right">
+      <div class="plabel" id="lbl-2"><span id="lname-2">CPU 4</span><span class="cnt" id="lcnt-2"></span></div>
+      <div class="hand"  id="hand-2"></div>
+    </div>
+    <!-- BOTTOM: player 0 (human) -->
+    <div class="seat" id="seat-bottom">
+      <div class="plabel" id="lbl-0">
+        <span id="lname-0">YOU</span>
+        <span class="cnt" id="lcnt-0"></span>
+        <span class="badge b-you">PLAYER</span>
+        <span id="drag-tip" style="font-size:.5rem;color:#aaa;font-family:'Crimson Pro';font-style:italic;display:none">· drag to shuffle</span>
+      </div>
+      <div class="hand" id="hand-0"></div>
+    </div>
+  </div>
+
+  <div id="hint"></div>
 </div>
-<div class="table" id="table"></div>
-<p id="hint"></p>
 
-<div id="overlay">
-  <h2 id="ovTitle"></h2>
-  <p  id="ovMsg"></p>
-  <button id="btnAgain">Play Again</button>
+<!-- OVERLAY -->
+
+<div id="overlay" class="show">
+  <h2 id="ovTitle">🃏 Joker</h2>
+  <p  id="ovMsg">Be the last one holding the <strong style="color:var(--gold)">Joker</strong> to win!<br>
+  <small style="color:#888">Drag your cards left/right to shuffle their order.</small></p>
+  <button class="ovBtn" id="btnStart">Deal Cards</button>
 </div>
 
 <script>
-(function () {
-  "use strict";
+(function(){
+"use strict";
 
-  var SUITS  = ["S","H","D","C"];
-  var VALS   = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  var SYM    = { S:"♠", H:"♥", D:"♦", C:"♣" };
-  var RED    = { H:true, D:true };
-  var JOKER  = "JOKER";
-  var NAMES  = ["You","CPU 2","CPU 3","CPU 4"];
-  var HUMAN  = 0;
+/* ── constants ── */
+var SUITS=["S","H","D","C"],VALS=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+var SYM={S:"♠",H:"♥",D:"♦",C:"♣"},RED={H:true,D:true},JOKER="JOKER";
+var NAMES=["You","CPU 2","CPU 4","CPU 3"];
+var HUMAN=0;
 
-  var players  = [];
-  var current  = 0;
-  var offering = -1;
-  var active   = false;
-  var timer    = null;
+var players=[],current=0,offering=-1,active=false,timer=null;
+var dragSrc=-1;
 
-  var elStatus  = document.getElementById("status");
-  var elTable   = document.getElementById("table");
-  var elHint    = document.getElementById("hint");
-  var elOverlay = document.getElementById("overlay");
-  var elOvTitle = document.getElementById("ovTitle");
-  var elOvMsg   = document.getElementById("ovMsg");
-  var btnStart  = document.getElementById("btnStart");
-  var btnAgain  = document.getElementById("btnAgain");
+var elOverlay=document.getElementById("overlay");
+var elOvTitle=document.getElementById("ovTitle");
+var elOvMsg  =document.getElementById("ovMsg");
+var btnStart =document.getElementById("btnStart");
 
-  btnStart.addEventListener("click", startGame);
-  btnAgain.addEventListener("click", function () {
-    elOverlay.classList.remove("show");
-    startGame();
+btnStart.addEventListener("click",function(){
+  elOverlay.classList.remove("show");
+  startGame();
+});
+
+/* ── deck ── */
+function buildDeck(){
+  var d=[];
+  SUITS.forEach(function(s){VALS.forEach(function(v){d.push(v+s);});});
+  var q=d.indexOf("QS");if(q!==-1)d.splice(q,1);
+  d.push(JOKER);return shuf(d);
+}
+function shuf(a){var i,j,t;for(i=a.length-1;i>0;i--){j=0|Math.random()*(i+1);t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function deal(deck){players=[[],[],[],[]];deck.forEach(function(c,i){players[i%4].push(c);});}
+function rankOf(c){return c===JOKER?JOKER:c.slice(0,-1);}
+function removePairs(h){
+  var chg=true,cnt,r,rem;
+  while(chg){
+    chg=false;cnt={};
+    h.forEach(function(c){var x=rankOf(c);if(x!==JOKER)cnt[x]=(cnt[x]||0)+1;});
+    r=null;Object.keys(cnt).forEach(function(x){if(r===null&&cnt[x]>=2)r=x;});
+    if(r!==null){rem=0;h=h.filter(function(c){if(rankOf(c)===r&&rem<2){rem++;return false;}return true;});chg=true;}
+  }
+  return h;
+}
+
+/* ── card element ── */
+function mkCard(code,opts){
+  opts=opts||{};
+  var d=document.createElement("div");d.className="card";d.dataset.code=code;
+  if(opts.back){d.classList.add("back");if(opts.pick)d.classList.add("pickable");return d;}
+  if(code===JOKER){d.classList.add("joker");d.textContent="🃏";return d;}
+  var s=code.slice(-1),v=code.slice(0,-1);
+  d.classList.add(RED[s]?"red":"black");
+  var top=document.createElement("span");top.className="top";top.innerHTML=v+"<br>"+SYM[s];
+  var mid=document.createElement("span");mid.className="mid";mid.textContent=SYM[s];
+  var bot=document.createElement("span");bot.className="bot";bot.innerHTML=v+"<br>"+SYM[s];
+  d.appendChild(top);d.appendChild(mid);d.appendChild(bot);return d;
+}
+function cardLbl(c){return c===JOKER?"Joker":c.slice(0,-1)+SYM[c.slice(-1)];}
+
+/* ── layout ── */
+function CW(){return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cw"));}
+function CH(){return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--ch"));}
+
+function layoutHand(pi,animate){
+  var hand=players[pi];
+  var box=document.getElementById("hand-"+pi);
+  box.innerHTML="";
+  var n=hand.length;if(!n)return;
+
+  var cw=CW(),ch=CH();
+  var cRect=document.getElementById("center").getBoundingClientRect();
+
+  if(pi===0||pi===1){
+    /* horizontal fan */
+    var bw=box.offsetWidth||220;
+    var ovlap=Math.max(14,Math.min(42,(bw-cw)/Math.max(n-1,1)));
+    var totalW=cw+(n-1)*ovlap;
+    var startX=Math.max(2,(bw-totalW)/2);
+    var spread=Math.min(2.5,20/Math.max(n,1));
+
+    box.style.height=ch+"px";
+    box.style.width=(startX+totalW+8)+"px";
+    box.style.minWidth="40px";
+
+    for(var i=0;i<n;i++){
+      var isPick=(active&&current===HUMAN&&pi===offering);
+      var el=mkCard(hand[i],{back:pi!==HUMAN,pick:isPick});
+      el.style.left=(startX+i*ovlap)+"px";
+      el.style.top="0px";
+      el.style.zIndex=i+1;
+      var ang=(i-(n-1)/2)*spread;
+      el.style.transform="rotate("+ang+"deg)";
+
+      if(animate){
+        var hRect=box.getBoundingClientRect();
+        var hx=hRect.left+startX+i*ovlap+cw/2;
+        var hy=hRect.top+ch/2;
+        el.style.setProperty("--dx",(cRect.left+cRect.width/2-hx)+"px");
+        el.style.setProperty("--dy",(cRect.top+cRect.height/2-hy)+"px");
+        el.style.setProperty("--dr",(Math.random()*50-25)+"deg");
+        el.classList.add("dealing");
+        el.style.animationDelay=(i*50)+"ms";
+      }
+      if(isPick)(function(ci){el.addEventListener("click",function(){pickCard(pi,ci);});})(i);
+      if(pi===HUMAN)setupDrag(el,i,box);
+      box.appendChild(el);
+    }
+  } else {
+    /* vertical stack for left(3) / right(2) */
+    var ovlapV=Math.max(10,Math.min(26,130/Math.max(n,1)));
+    var totalH=ch+(n-1)*ovlapV;
+    box.style.width=cw+"px";
+    box.style.height=(totalH+8)+"px";
+
+    for(var j=0;j<n;j++){
+      var isPickV=(active&&current===HUMAN&&pi===offering);
+      var elv=mkCard(hand[j],{back:true,pick:isPickV});
+      elv.style.top=(j*ovlapV)+"px";
+      elv.style.left="0px";
+      elv.style.zIndex=j+1;
+
+      if(animate){
+        var vRect=box.getBoundingClientRect();
+        var vx=vRect.left+cw/2;
+        var vy=vRect.top+j*ovlapV+ch/2;
+        elv.style.setProperty("--dx",(cRect.left+cRect.width/2-vx)+"px");
+        elv.style.setProperty("--dy",(cRect.top+cRect.height/2-vy)+"px");
+        elv.style.setProperty("--dr",(Math.random()*60-30)+"deg");
+        elv.classList.add("dealing");
+        elv.style.animationDelay=(j*50)+"ms";
+      }
+      if(isPickV)(function(ci){elv.addEventListener("click",function(){pickCard(pi,ci);});})(j);
+      box.appendChild(elv);
+    }
+  }
+}
+
+/* ── drag-to-shuffle (mouse + touch) ── */
+function setupDrag(el,idx,box){
+  /* Mouse drag */
+  el.draggable=true;
+  el.addEventListener("dragstart",function(e){
+    dragSrc=idx;
+    setTimeout(function(){el.classList.add("dragging");},0);
+    e.dataTransfer.effectAllowed="move";
+  });
+  el.addEventListener("dragend",function(){
+    el.classList.remove("dragging");
+    box.querySelectorAll(".drag-over").forEach(function(c){c.classList.remove("drag-over");});
+  });
+  el.addEventListener("dragover",function(e){
+    e.preventDefault();e.dataTransfer.dropEffect="move";
+    if(idx!==dragSrc)el.classList.add("drag-over");
+  });
+  el.addEventListener("dragleave",function(){el.classList.remove("drag-over");});
+  el.addEventListener("drop",function(e){
+    e.preventDefault();el.classList.remove("drag-over");
+    if(dragSrc===-1||dragSrc===idx)return;
+    var tmp=players[HUMAN][dragSrc];
+    players[HUMAN][dragSrc]=players[HUMAN][idx];
+    players[HUMAN][idx]=tmp;
+    dragSrc=-1;
+    layoutHand(HUMAN,false);
+    setHint("Cards reshuffled — Joker hidden! 🤫");
+    setTimeout(updateHint,2000);
   });
 
-  /* ── Deck ── */
-  function buildDeck() {
-    var d = [];
-    SUITS.forEach(function (s) {
-      VALS.forEach(function (v) { d.push(v + s); });
-    });
-    var qi = d.indexOf("QS");
-    if (qi !== -1) d.splice(qi, 1);
-    d.push(JOKER);
-    return shuffle(d);
-  }
-
-  function shuffle(arr) {
-    var i, j, tmp;
-    for (i = arr.length - 1; i > 0; i--) {
-      j = Math.floor(Math.random() * (i + 1));
-      tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    }
-    return arr;
-  }
-
-  function deal(deck) {
-    players = [[],[],[],[]];
-    deck.forEach(function (c, i) { players[i % 4].push(c); });
-  }
-
-  function rankOf(card) {
-    if (card === JOKER) return JOKER;
-    return card.slice(0, -1);
-  }
-
-  function removePairs(hand) {
-    var changed = true, counts, rank, removed;
-    while (changed) {
-      changed = false;
-      counts = {};
-      hand.forEach(function (c) {
-        var r = rankOf(c);
-        if (r !== JOKER) counts[r] = (counts[r] || 0) + 1;
-      });
-      rank = null;
-      Object.keys(counts).forEach(function (r) {
-        if (rank === null && counts[r] >= 2) rank = r;
-      });
-      if (rank !== null) {
-        removed = 0;
-        hand = hand.filter(function (c) {
-          if (rankOf(c) === rank && removed < 2) { removed++; return false; }
-          return true;
-        });
-        changed = true;
-      }
-    }
-    return hand;
-  }
-
-  /* ── Card element ── */
-  function makeCard(card, isBack, isPickable) {
-    var div = document.createElement("div");
-    div.className = "card";
-
-    if (isBack) {
-      div.classList.add("back");
-      if (isPickable) div.classList.add("pickable");
-      return div;
-    }
-
-    if (card === JOKER) {
-      div.classList.add("joker");
-      div.textContent = "🃏";
-      return div;
-    }
-
-    var suit = card.slice(-1);
-    var val  = card.slice(0, -1);
-    var sym  = SYM[suit];
-
-    div.classList.add(RED[suit] ? "red" : "black");
-
-    var top = document.createElement("span");
-    top.className = "top";
-    top.innerHTML = val + "<br>" + sym;
-
-    var mid = document.createElement("span");
-    mid.className = "mid";
-    mid.textContent = sym;
-
-    var bot = document.createElement("span");
-    bot.className = "bot";
-    bot.innerHTML = val + "<br>" + sym;
-
-    div.appendChild(top);
-    div.appendChild(mid);
-    div.appendChild(bot);
-    return div;
-  }
-
-  function cardName(card) {
-    if (card === JOKER) return "Joker";
-    return card.slice(0, -1) + SYM[card.slice(-1)];
-  }
-
-  /* ── Game flow ── */
-  function startGame() {
-    clearTimeout(timer);
-    active   = true;
-    current  = 0;
-    offering = -1;
-    btnStart.disabled = true;
-    deal(buildDeck());
-    players = players.map(removePairs);
-    setStatus("Game started!", "");
-    setHint("");
-    advanceTurn();
-  }
-
-  function nextWith(from) {
-    var idx = (from + 1) % 4;
-    var tries = 0;
-    while (players[idx].length === 0 && tries++ < 4) {
-      idx = (idx + 1) % 4;
-    }
-    return idx;
-  }
-
-  function checkEnd() {
-    var withCards = players.filter(function (h) { return h.length > 0; });
-    if (withCards.length > 1) return false;
-    var loser = -1;
-    players.forEach(function (h, i) {
-      if (h.indexOf(JOKER) !== -1) loser = i;
-    });
-    endGame(loser);
-    return true;
-  }
-
-  function endGame(loser) {
-    active = false;
-    clearTimeout(timer);
-    var lost = loser === HUMAN;
-    elOvTitle.textContent = lost ? "😅 You Lost!" : "🎉 You Win!";
-    elOvMsg.textContent   = lost
-      ? "You are stuck with the Joker!"
-      : NAMES[loser] + " is left with the Joker!";
-    elOverlay.classList.add("show");
-    btnStart.disabled = false;
-    setStatus(elOvMsg.textContent, lost ? "warn" : "good");
-  }
-
-  function advanceTurn() {
-    if (!active) return;
-    if (checkEnd()) return;
-
-    var guard = 0;
-    while (players[current].length === 0 && guard++ < 4) {
-      current = (current + 1) % 4;
-    }
-
-    offering = nextWith(current);
-
-    if (players[offering].length === 0) {
-      current = nextWith(current);
-      advanceTurn();
+  /* Touch drag */
+  var tSrcIdx=-1,tStartX=0,tStartY=0;
+  el.addEventListener("touchstart",function(e){
+    tSrcIdx=idx;
+    tStartX=e.touches[0].clientX;
+    tStartY=e.touches[0].clientY;
+    el.style.zIndex="999";el.style.opacity=".75";
+  },{passive:true});
+  el.addEventListener("touchend",function(e){
+    el.style.zIndex="";el.style.opacity="";
+    var t=e.changedTouches[0];
+    var dx=t.clientX-tStartX,dy=t.clientY-tStartY;
+    if(Math.abs(dx)<8&&Math.abs(dy)<8){
+      if(el.classList.contains("pickable"))pickCard(HUMAN,idx);
       return;
     }
+    var all=box.querySelectorAll(".card"),tgt=-1;
+    all.forEach(function(c,ci){
+      var r=c.getBoundingClientRect();
+      if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)tgt=ci;
+    });
+    if(tgt!==-1&&tgt!==tSrcIdx){
+      var tmp=players[HUMAN][tSrcIdx];
+      players[HUMAN][tSrcIdx]=players[HUMAN][tgt];
+      players[HUMAN][tgt]=tmp;
+      layoutHand(HUMAN,false);
+      setHint("Cards reshuffled! 🤫");
+      setTimeout(updateHint,2000);
+    }
+  },{passive:true});
+}
 
-    render();
-
-    if (current !== HUMAN) {
-      setStatus(NAMES[current] + " is thinking...", "");
-      setHint("");
-      timer = setTimeout(cpuMove, 900 + Math.floor(Math.random() * 700));
-    } else {
-      setStatus("Your turn — pick from " + NAMES[offering], "good");
-      setHint("Tap a red-bordered card to pick it.");
+/* ── labels ── */
+function updateLabels(){
+  for(var pi=0;pi<4;pi++){
+    var h=players[pi];
+    document.getElementById("lcnt-"+pi).textContent=h.length?"("+h.length+")":"";
+    var lbl=document.getElementById("lbl-"+pi);
+    lbl.querySelectorAll(".badge:not(.b-you)").forEach(function(b){b.remove();});
+    lbl.classList.toggle("active-seat",pi===current&&active);
+    if(!h.length){addB(lbl,"OUT","b-out");}
+    else{
+      if(pi===current&&active)addB(lbl,"PICKING","b-pick");
+      if(pi===offering&&pi!==current&&active&&h.length)addB(lbl,"OFFER","b-offer");
+      if(pi===HUMAN&&h.indexOf(JOKER)!==-1&&active)addB(lbl,"🃏","b-joker");
     }
   }
+  var tip=document.getElementById("drag-tip");
+  tip.style.display=(active&&players[HUMAN].length>1)?"inline":"none";
+}
+function addB(p,t,c){var s=document.createElement("span");s.className="badge "+c;s.textContent=t;p.appendChild(s);}
 
-  function cpuMove() {
-    if (!active) return;
-    var hand = players[offering];
-    if (!hand || hand.length === 0) { advanceTurn(); return; }
-    pickCard(offering, Math.floor(Math.random() * hand.length));
+/* ── deck pile ── */
+function renderDeck(n){
+  var p=document.getElementById("deckPile");p.innerHTML="";
+  for(var i=0;i<Math.min(n,6);i++){
+    var d=document.createElement("div");d.className="deckCard";
+    d.style.top=(-i*2)+"px";d.style.left=(-i)+"px";p.appendChild(d);
   }
+}
 
-  function pickCard(fromIdx, cardIdx) {
-    if (!active) return;
-    if (fromIdx !== offering) return;
-    var hand = players[fromIdx];
-    if (!hand || cardIdx >= hand.length) return;
+/* ── game ── */
+function startGame(){
+  clearTimeout(timer);
+  active=true;current=0;offering=-1;
+  deal(buildDeck());
+  players=players.map(removePairs);
+  renderDeck(10);
+  setStatus("Dealing…");setHint("");
+  for(var pi=0;pi<4;pi++)layoutHand(pi,true);
+  updateLabels();
+  var maxCards=players.reduce(function(m,h){return Math.max(m,h.length);},0);
+  timer=setTimeout(function(){
+    renderDeck(0);setStatus("Your move!");advanceTurn();
+  },maxCards*52+450);
+}
 
-    var card = hand.splice(cardIdx, 1)[0];
-    players[current].push(card);
-    players[current] = removePairs(players[current]);
+function nextWith(from){
+  var idx=(from+1)%4,t=0;
+  while(!players[idx].length&&t++<4)idx=(idx+1)%4;
+  return idx;
+}
 
-    var who = (current === HUMAN) ? "You picked" : NAMES[current] + " picked";
-    setStatus(who + ": " + cardName(card), card === JOKER ? "warn" : "");
-    setHint("");
+function checkEnd(){
+  if(players.filter(function(h){return h.length>0;}).length>1)return false;
+  var w=-1;players.forEach(function(h,i){if(h.indexOf(JOKER)!==-1)w=i;});
+  endGame(w);return true;
+}
 
-    render();
+function endGame(w){
+  active=false;clearTimeout(timer);
+  var won=(w===HUMAN);
+  elOvTitle.textContent=won?"🎉 You Win!":"😅 You Lost!";
+  elOvMsg.innerHTML=won
+    ?"You held the <strong style='color:var(--gold)'>Joker</strong> until the end!"
+    :NAMES[w]+" held the Joker last and wins!";
+  /* remove old play-again button if any */
+  elOverlay.querySelectorAll(".again").forEach(function(b){b.remove();});
+  var btn=document.createElement("button");btn.className="ovBtn again";btn.textContent="Play Again";
+  btn.addEventListener("click",function(){elOverlay.classList.remove("show");startGame();});
+  elOverlay.appendChild(btn);
+  elOverlay.classList.add("show");
+}
 
-    var prev = current;
-    timer = setTimeout(function () {
-      current = nextWith(prev);
-      advanceTurn();
-    }, 800);
+function advanceTurn(){
+  if(!active)return;if(checkEnd())return;
+  var g=0;while(!players[current].length&&g++<4)current=(current+1)%4;
+  offering=nextWith(current);
+  if(!players[offering].length){current=nextWith(current);advanceTurn();return;}
+  for(var pi=0;pi<4;pi++)layoutHand(pi,false);
+  updateLabels();updateHint();
+  if(current!==HUMAN){
+    setStatus(NAMES[current]+" thinks…");
+    timer=setTimeout(cpuMove,750+0|Math.random()*900);
+  } else {
+    setStatus("Pick from "+NAMES[offering]);
   }
+}
 
-  /* ── Render ── */
-  function render() {
-    elTable.innerHTML = "";
+function updateHint(){
+  if(!active)return;
+  setHint(current===HUMAN?"Tap a glowing card · Drag your cards to reorder":"");
+}
 
-    players.forEach(function (hand, pi) {
-      var wrap = document.createElement("div");
-      wrap.className = "player" +
-        (pi === current     ? " active"     : "") +
-        (hand.length === 0  ? " eliminated" : "");
+/* CPU picks randomly from ANY position */
+function cpuMove(){
+  if(!active)return;
+  var h=players[offering];if(!h||!h.length){advanceTurn();return;}
+  var idx=0|Math.random()*h.length;
+  flashPick(offering,idx,function(){pickCard(offering,idx);});
+}
 
-      var lbl = document.createElement("div");
-      lbl.className = "plabel";
-      lbl.innerHTML = NAMES[pi] +
-        ' <span style="opacity:0.5;font-size:0.7rem">(' + hand.length + ')</span>';
-      if (pi === HUMAN) lbl.innerHTML += ' <span class="badge b-you">YOU</span>';
-      if (pi === current && active) lbl.innerHTML += ' <span class="badge b-pick">PICKING</span>';
-      if (pi === offering && pi !== current && active && hand.length > 0)
-        lbl.innerHTML += ' <span class="badge b-from">OFFER</span>';
-      if (hand.length === 0) lbl.innerHTML += ' <span class="badge b-out">OUT</span>';
-      wrap.appendChild(lbl);
+function flashPick(pi,idx,cb){
+  var box=document.getElementById("hand-"+pi);
+  var cards=box.querySelectorAll(".card");
+  var target=cards[idx];if(!target){cb();return;}
+  var r=target.getBoundingClientRect();
+  var rr=document.getElementById("root").getBoundingClientRect();
+  var f=document.createElement("div");f.className="pick-flash";
+  f.style.left=(r.left-rr.left-4)+"px";f.style.top=(r.top-rr.top-4)+"px";
+  document.getElementById("root").appendChild(f);
+  setTimeout(function(){f.remove();cb();},450);
+}
 
-      var row = document.createElement("div");
-      row.className = "cards";
+function pickCard(fromIdx,cardIdx){
+  if(!active||fromIdx!==offering)return;
+  var h=players[fromIdx];if(!h||cardIdx>=h.length)return;
+  var card=h.splice(cardIdx,1)[0];
+  players[current].push(card);
+  players[current]=removePairs(players[current]);
+  var who=(current===HUMAN)?"You picked":NAMES[current]+" picked";
+  setStatus(card===JOKER?who+": 🃏 Hold it!":who+": "+cardLbl(card));
+  for(var pi=0;pi<4;pi++)layoutHand(pi,false);
+  updateLabels();renderDeck(0);
+  var prev=current;
+  timer=setTimeout(function(){current=nextWith(prev);advanceTurn();},700);
+}
 
-      hand.forEach(function (c, ci) {
-        var isBack     = (pi !== HUMAN);
-        var isPickable = (active && current === HUMAN && pi === offering);
-        var el = makeCard(c, isBack, isPickable);
-
-        if (isPickable) {
-          (function (capturedIdx) {
-            el.addEventListener("click", function () {
-              pickCard(pi, capturedIdx);
-            });
-          })(ci);
-        }
-
-        row.appendChild(el);
-      });
-
-      wrap.appendChild(row);
-      elTable.appendChild(wrap);
-    });
-  }
-
-  function setStatus(msg, cls) {
-    elStatus.textContent = msg;
-    elStatus.className   = cls || "";
-  }
-  function setHint(msg) {
-    elHint.textContent = msg;
-  }
+function setStatus(m){document.getElementById("status").textContent=m;}
+function setHint(m){document.getElementById("hint").textContent=m;}
 
 })();
 </script>
