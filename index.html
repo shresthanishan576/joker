@@ -1,220 +1,237 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Joker Game</title>
+<title>Joker — Luxury Edition</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
 
 :root {
-–felt:  #0d6b42;
-–felt2: #0a5234;
-–dark:  #061a0f;
-–gold:  #f0c040;
-–red:   #c0392b;
-–cw: 52px;
-–ch: 76px;
-–brad: 7px;
+    /* Muted, Luxury Color Palette */
+    --felt-dark: #0a3d2a;
+    --felt-light: #145a40;
+    --dark-void: #04120b;
+    --gold-muted: #c5a059;
+    --gold-bright: #e6cc8a;
+    --card-white: #fdfdfd;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --cw: 56px;
+    --ch: 82px;
+    --brad: 4px;
 }
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;background:var(–dark);}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark-void);}
 
-#root{
-width:100vw;height:100vh;position:relative;
-display:flex;align-items:stretch;
-background:radial-gradient(ellipse 70% 60% at 50% 50%,var(–felt) 0%,var(–felt2) 55%,var(–dark) 100%);
-overflow:hidden;
-}
-#root::before{
-content:’’;position:absolute;inset:0;
-background-image:radial-gradient(circle,rgba(255,255,255,0.03) 1px,transparent 1px);
-background-size:18px 18px;pointer-events:none;z-index:0;
+#root {
+    width:100vw; height:100vh; position:relative;
+    display:flex; align-items:stretch;
+    /* Realistic Felt Gradient + Vignette */
+    background: radial-gradient(circle, var(--felt-light) 0%, var(--felt-dark) 70%, var(--dark-void) 100%);
+    overflow:hidden;
 }
 
-#table{
-position:relative;flex:1;
-display:grid;
-grid-template-columns:120px 1fr 120px;
-grid-template-rows:100px 1fr 130px;
-width:100%;height:100%;z-index:1;
+/* This creates a fabric-like texture over the green */
+#root::before {
+    content:''; position:absolute; inset:0;
+    background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
+    opacity: 0.3; pointer-events:none; z-index:0;
 }
 
-/* CENTER */
-#center{
-grid-column:2;grid-row:2;
-display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-}
-#deckPile{position:relative;width:var(–cw);height:var(–ch);}
-.deckCard{
-position:absolute;width:var(–cw);height:var(–ch);border-radius:var(–brad);
-background:repeating-linear-gradient(45deg,#1a3a8a 0,#1a3a8a 5px,#0d2060 5px,#0d2060 10px);
-border:2px solid #4466cc;
-}
-#status{
-font-family:‘Cinzel’,serif;font-size:0.68rem;color:var(–gold);
-text-align:center;text-shadow:0 1px 6px #000a;max-width:160px;
-line-height:1.4;padding:5px 9px;
-background:rgba(0,0,0,0.5);border:1px solid rgba(240,192,64,0.25);border-radius:8px;
+/* Table Rim Simulation */
+#table {
+    position:relative; flex:1;
+    display:grid;
+    grid-template-columns:140px 1fr 140px;
+    grid-template-rows:120px 1fr 150px;
+    width:100%; height:100%; z-index:1;
+    box-shadow: inset 0 0 150px rgba(0,0,0,0.7); /* Depth effect */
 }
 
-/* SEATS */
-.seat{display:flex;align-items:center;justify-content:center;position:relative;}
-#seat-top{grid-column:2;grid-row:1;flex-direction:column;gap:4px;}
-#seat-left{grid-column:1;grid-row:2;flex-direction:column;gap:4px;}
-#seat-right{grid-column:3;grid-row:2;flex-direction:column;gap:4px;}
-#seat-bottom{grid-column:2;grid-row:3;flex-direction:column;gap:6px;padding-bottom:4px;}
-
-.plabel{
-font-family:‘Cinzel’,serif;font-size:0.6rem;color:var(–gold);
-letter-spacing:1px;display:flex;align-items:center;gap:4px;
-background:rgba(0,0,0,0.45);border:1px solid rgba(240,192,64,0.2);
-border-radius:6px;padding:2px 7px;white-space:nowrap;
-transition:box-shadow .25s,border-color .25s;
+/* CENTER AREA */
+#center {
+    grid-column:2; grid-row:2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px;
 }
-.plabel.active-seat{box-shadow:0 0 0 2px var(–gold);border-color:var(–gold);}
-.cnt{opacity:.5;font-size:.55rem;}
-.badge{font-size:.5rem;padding:1px 4px;border-radius:3px;font-weight:700;font-family:sans-serif;}
-.b-you  {background:var(–gold);color:#111;}
-.b-pick {background:#27ae60;color:#fff;}
-.b-offer{background:#e74c3c;color:#fff;}
-.b-out  {background:#444;color:#888;}
-.b-joker{background:#8e44ad;color:#fff;}
-
-/* HAND containers */
-.hand{display:flex;align-items:center;justify-content:center;position:relative;}
-#seat-top    .hand{position:relative;height:var(–ch);width:100%;}
-#seat-bottom .hand{position:relative;height:var(–ch);width:100%;max-width:480px;}
-#seat-left   .hand,
-#seat-right  .hand{position:relative;width:var(–cw);height:200px;}
-
-/* CARD base */
-.card{
-position:absolute;
-width:var(–cw);height:var(–ch);border-radius:var(–brad);
-border:1.5px solid transparent;
-display:flex;flex-direction:column;justify-content:space-between;
-padding:2px 3px;
-font-family:‘Crimson Pro’,serif;font-weight:600;font-size:.68rem;
-user-select:none;overflow:hidden;background:#fff;cursor:default;
-transition:transform .15s,box-shadow .15s;will-change:transform;
+#deckPile { position:relative; width:var(--cw); height:var(--ch); }
+.deckCard {
+    position:absolute; width:var(--cw); height:var(--ch); border-radius:var(--brad);
+    background: linear-gradient(135deg, #1a3a8a 0%, #0d2060 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
-.card.red  {color:#c0392b;}
-.card.black{color:#111;}
-.card .top{align-self:flex-start;line-height:1.1;}
-.card .mid{
-position:absolute;top:50%;left:50%;
-transform:translate(-50%,-50%);
-font-size:1.25rem;line-height:1;pointer-events:none;
-}
-.card .bot{align-self:flex-end;line-height:1.1;transform:rotate(180deg);}
-.card.joker{
-background:linear-gradient(135deg,#fffbe6,#fff3c0);
-border:2px solid var(–gold);color:#333;
-align-items:center;justify-content:center;font-size:1.8rem;
-}
-.card.back{
-background:repeating-linear-gradient(45deg,#1a3a8a 0,#1a3a8a 5px,#0d2060 5px,#0d2060 10px);
-border-color:#4466cc;
+#status {
+    font-family:'Cinzel', serif; font-size:0.75rem; color:var(--gold-muted);
+    text-align:center; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    max-width:200px; line-height:1.5; padding:8px 12px;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(197, 160, 89, 0.3); 
+    border-radius:4px; backdrop-filter: blur(4px);
 }
 
-/* Pickable */
-.card.pickable{cursor:pointer;border-color:var(–red);animation:glowR .9s infinite alternate;}
-.card.pickable:hover{transform:translateY(-12px) scale(1.07)!important;z-index:60!important;}
-@keyframes glowR{from{box-shadow:0 0 4px #e74c3c66;}to{box-shadow:0 0 18px #e74c3cbb;}}
+/* SEATS & LABELS */
+.seat { display:flex; align-items:center; justify-content:center; position:relative; }
+#seat-top { grid-column:2; grid-row:1; flex-direction:column; gap:8px; }
+#seat-left { grid-column:1; grid-row:2; flex-direction:column; gap:8px; }
+#seat-right { grid-column:3; grid-row:2; flex-direction:column; gap:8px; }
+#seat-bottom { grid-column:2; grid-row:3; flex-direction:column; gap:10px; padding-bottom:10px; }
 
-/* Dragging */
-.card.dragging{opacity:.7;z-index:999!important;cursor:grabbing!important;box-shadow:0 12px 30px #000b!important;transition:none!important;}
-.card.drag-over{box-shadow:0 0 0 3px var(–gold)!important;}
-
-/* Hover lift on human hand */
-#seat-bottom .hand .card:not(.back):hover{transform:translateY(-13px)!important;z-index:55!important;}
-
-/* Deal animation */
-@keyframes dealIn{
-from{transform:translate(var(–dx),var(–dy)) scale(.35) rotate(var(–dr));opacity:0;}
-to{opacity:1;}
+.plabel {
+    font-family:'Cinzel', serif; font-size:0.65rem; color:var(--gold-muted);
+    letter-spacing:1.5px; display:flex; align-items:center; gap:6px;
+    background: transparent; border-bottom: 1px solid rgba(197, 160, 89, 0.4);
+    padding:2px 10px; white-space:nowrap; transition: all .3s;
 }
-.card.dealing{animation:dealIn .38s cubic-bezier(.25,.8,.25,1) both;}
+.plabel.active-seat { color: var(--gold-bright); border-bottom-color: var(--gold-bright); text-shadow: 0 0 8px rgba(230, 204, 138, 0.5); }
+.cnt { opacity:.6; font-size:.6rem; font-family: sans-serif; }
 
-/* Gold pick flash */
-.pick-flash{
-position:absolute;
-width:calc(var(–cw)+8px);height:calc(var(–ch)+8px);
-border-radius:var(–brad);border:3px solid var(–gold);
-box-shadow:0 0 20px var(–gold);pointer-events:none;
-animation:flashP .5s ease-out forwards;z-index:100;
+.badge { font-size:.5rem; padding:1px 5px; border-radius:2px; font-weight:bold; font-family: sans-serif; text-transform: uppercase; }
+.b-you   { border: 1px solid var(--gold-muted); color: var(--gold-muted); }
+.b-pick  { background: #2d5a27; color: #fff; border: 1px solid #3e7a36; }
+.b-offer { background: #7a2a2a; color: #fff; border: 1px solid #9a3a3a; }
+.b-out   { background: #333; color: #888; border: 1px solid #444; }
+.b-joker { background: #4b2a63; color: #fff; border: 1px solid #6b4a83; }
+
+/* HANDS */
+.hand { display:flex; align-items:center; justify-content:center; position:relative; }
+#seat-top .hand, #seat-bottom .hand { height:var(--ch); width:100%; }
+#seat-left .hand, #seat-right .hand { width:var(--cw); height:200px; }
+
+/* CARD REALISM */
+.card {
+    position:absolute; width:var(--cw); height:var(--ch); border-radius:var(--brad);
+    background: var(--card-white);
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px var(--card-shadow);
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:4px 5px;
+    font-family:'Crimson Pro', serif; font-weight:600; font-size:.75rem;
+    user-select:none; overflow:hidden; cursor:default;
+    transition: transform .2s ease, box-shadow .2s ease;
 }
-@keyframes flashP{0%{opacity:1;transform:scale(1.1);}100%{opacity:0;transform:scale(1.5);}}
 
-/* HINT */
-#hint{
-position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
-font-family:‘Crimson Pro’,serif;font-style:italic;font-size:.72rem;
-color:rgba(255,255,255,.48);white-space:nowrap;pointer-events:none;z-index:2;
+/* Paper texture effect on cards */
+.card::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(0,0,0,0.05) 100%);
+    pointer-events: none;
 }
 
-/* TITLE */
-#title{
-position:absolute;top:7px;left:50%;transform:translateX(-50%);
-font-family:‘Cinzel’,serif;font-size:.85rem;color:var(–gold);
-letter-spacing:3px;text-shadow:0 1px 8px #000c;white-space:nowrap;
-pointer-events:none;z-index:2;
+.card.red { color:#a82a2a; }
+.card.black { color:#1a1a1a; }
+.card .top { align-self:flex-start; line-height:1.1; z-index:1; }
+.card .mid {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:1.5rem; line-height:1; pointer-events:none; z-index:1;
+}
+.card .bot { align-self:flex-end; line-height:1.1; transform:rotate(180deg); z-index:1; }
+
+.card.joker {
+    background: linear-gradient(135deg, #fffdf5 0%, #f2e6c9 100%);
+    border: 1px solid var(--gold-muted); color:#444;
+    align-items:center; justify-content:center; font-size:2rem;
+}
+.card.back {
+    background: repeating-linear-gradient(45deg,#1a3a8a 0,#1a3a8a 4px,#0d2060 4px,#0d2060 8px);
+    border: 1px solid #4466cc;
+}
+
+/* Interaction Realism */
+.card.pickable { 
+    cursor:pointer; 
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.6); 
+    animation: glowGold .15s infinite alternate; 
+}
+@keyframes glowGold { from{box-shadow:0 0 10px var(--gold-muted);} to{box-shadow:0 0 20px var(--gold-bright);} }
+
+.card.pickable:hover {
+    transform: translateY(-15px) scale(1.05) !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5) !important;
+    z-index:100 !important;
+}
+
+#seat-bottom .hand .card:not(.back):hover {
+    transform: translateY(-15px) !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
+    z-index:60 !important;
+}
+
+/* DEAL ANIMATION */
+@keyframes dealIn {
+    from { transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(var(--dr)); opacity:0; }
+    to { opacity:1; }
+}
+.card.dealing { animation: dealIn .4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+/* Pick Flash */
+.pick-flash {
+    position:absolute; width:calc(var(--cw)+10px); height:calc(var(--ch)+10px);
+    border-radius:var(--brad); border:2px solid var(--gold-bright);
+    box-shadow:0 0 25px var(--gold-bright); pointer-events:none;
+    animation: flashP .5s ease-out forwards; z-index:100;
+}
+@keyframes flashP { 0%{opacity:1;transform:scale(1);} 100%{opacity:0;transform:scale(1.3);} }
+
+#hint {
+    position:absolute; bottom:15px; left:50%; transform:translateX(-50%);
+    font-family:'Crimson Pro', serif; font-style:italic; font-size:.8rem;
+    color:rgba(255,255,255,0.4); white-space:nowrap; pointer-events:none; z-index:2;
+}
+
+#title {
+    position:absolute; top:15px; left:50%; transform:translateX(-50%);
+    font-family:'Cinzel', serif; font-size:0.9rem; color:var(--gold-muted);
+    letter-spacing:4px; text-shadow: 0 2px 4px #000; white-space:nowrap;
+    pointer-events:none; z-index:2;
 }
 
 /* OVERLAY */
-#overlay{
-display:none;position:fixed;inset:0;
-background:rgba(0,0,0,.88);z-index:200;
-flex-direction:column;align-items:center;justify-content:center;
-gap:18px;text-align:center;padding:24px;
+#overlay {
+    display:none; position:fixed; inset:0;
+    background: radial-gradient(circle, rgba(0,0,0,0.9) 0%, rgba(0,0,0,1) 100%);
+    z-index:200; flex-direction:column; align-items:center; justify-content:center;
+    gap:20px; text-align:center; padding:24px;
 }
-#overlay.show{display:flex;}
-#overlay h2{font-family:‘Cinzel’,serif;font-size:2rem;color:var(–gold);text-shadow:0 0 30px var(–gold);}
-#overlay p{color:#ccc;font-size:1rem;font-family:‘Crimson Pro’,serif;line-height:1.6;}
-.ovBtn{
-padding:11px 30px;border:none;border-radius:8px;
-background:var(–gold);color:#111;font-size:1rem;font-weight:bold;
-cursor:pointer;font-family:‘Cinzel’,serif;letter-spacing:1px;
-box-shadow:0 4px 16px #0008;transition:transform .12s;
+#overlay.show { display:flex; }
+#overlay h2 { font-family:'Cinzel', serif; font-size:2.5rem; color:var(--gold-bright); text-shadow: 0 0 20px rgba(230, 204, 138, 0.4); }
+#overlay p { color:#aaa; font-size:1.1rem; font-family:'Crimson Pro', serif; line-height:1.6; max-width: 500px; }
+.ovBtn {
+    padding:12px 35px; border: 1px solid var(--gold-muted); border-radius:2px;
+    background: transparent; color:var(--gold-muted); font-size:1rem; font-weight:bold;
+    cursor:pointer; font-family:'Cinzel', serif; letter-spacing:2px;
+    transition: all .3s;
 }
-.ovBtn:active{transform:scale(.95);}
-</style>
+.ovBtn:hover { background: var(--gold-muted); color: #111; box-shadow: 0 0 15px var(--gold-muted); }
 
+</style>
 </head>
 <body>
 <div id="root">
-  <div id="title">🃏 JOKER — HOLD THE ACE</div>
+  <div id="title">🃏 JOKER — THE HIGH STAKES</div>
 
   <div id="table">
-    <!-- TOP: player 1 -->
     <div class="seat" id="seat-top">
       <div class="plabel" id="lbl-1"><span id="lname-1">CPU 2</span><span class="cnt" id="lcnt-1"></span></div>
       <div class="hand"  id="hand-1"></div>
     </div>
-    <!-- LEFT: player 3 -->
     <div class="seat" id="seat-left">
       <div class="plabel" id="lbl-3"><span id="lname-3">CPU 3</span><span class="cnt" id="lcnt-3"></span></div>
       <div class="hand"  id="hand-3"></div>
     </div>
-    <!-- CENTER -->
     <div id="center">
       <div id="deckPile"></div>
-      <div id="status">Press Start</div>
+      <div id="status">Welcome to the table</div>
     </div>
-    <!-- RIGHT: player 2 -->
     <div class="seat" id="seat-right">
       <div class="plabel" id="lbl-2"><span id="lname-2">CPU 4</span><span class="cnt" id="lcnt-2"></span></div>
       <div class="hand"  id="hand-2"></div>
     </div>
-    <!-- BOTTOM: player 0 (human) -->
     <div class="seat" id="seat-bottom">
       <div class="plabel" id="lbl-0">
         <span id="lname-0">YOU</span>
         <span class="cnt" id="lcnt-0"></span>
-        <span class="badge b-you">PLAYER</span>
-        <span id="drag-tip" style="font-size:.5rem;color:#aaa;font-family:'Crimson Pro';font-style:italic;display:none">· drag to shuffle</span>
+        <span class="badge b-you">Player</span>
+        <span id="drag-tip" style="font-size:.6rem;color:#888;font-family:'Crimson Pro';font-style:italic;display:none">· drag to rearrange</span>
       </div>
       <div class="hand" id="hand-0"></div>
     </div>
@@ -223,20 +240,18 @@ box-shadow:0 4px 16px #0008;transition:transform .12s;
   <div id="hint"></div>
 </div>
 
-<!-- OVERLAY -->
-
 <div id="overlay" class="show">
   <h2 id="ovTitle">🃏 Joker</h2>
-  <p  id="ovMsg">Be the last one holding the <strong style="color:var(--gold)">Joker</strong> to win!<br>
-  <small style="color:#888">Drag your cards left/right to shuffle their order.</small></p>
-  <button class="ovBtn" id="btnStart">Deal Cards</button>
+  <p id="ovMsg">The rule is simple: be the last one holding the <strong style="color:var(--gold-bright)">Joker</strong> to claim victory.<br>
+  <small style="color:#666">Tip: Shuffle your cards to hide the Joker from opponents.</small></p>
+  <button class="ovBtn" id="btnStart">Deal the Cards</button>
 </div>
 
 <script>
+/* All JS remains the same as the corrected functional version provided previously */
 (function(){
 "use strict";
 
-/* ── constants ── */
 var SUITS=["S","H","D","C"],VALS=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 var SYM={S:"♠",H:"♥",D:"♦",C:"♣"},RED={H:true,D:true},JOKER="JOKER";
 var NAMES=["You","CPU 2","CPU 4","CPU 3"];
@@ -255,7 +270,6 @@ btnStart.addEventListener("click",function(){
   startGame();
 });
 
-/* ── deck ── */
 function buildDeck(){
   var d=[];
   SUITS.forEach(function(s){VALS.forEach(function(v){d.push(v+s);});});
@@ -276,7 +290,6 @@ function removePairs(h){
   return h;
 }
 
-/* ── card element ── */
 function mkCard(code,opts){
   opts=opts||{};
   var d=document.createElement("div");d.className="card";d.dataset.code=code;
@@ -291,7 +304,6 @@ function mkCard(code,opts){
 }
 function cardLbl(c){return c===JOKER?"Joker":c.slice(0,-1)+SYM[c.slice(-1)];}
 
-/* ── layout ── */
 function CW(){return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--cw"));}
 function CH(){return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--ch"));}
 
@@ -305,7 +317,6 @@ function layoutHand(pi,animate){
   var cRect=document.getElementById("center").getBoundingClientRect();
 
   if(pi===0||pi===1){
-    /* horizontal fan */
     var bw=box.offsetWidth||220;
     var ovlap=Math.max(14,Math.min(42,(bw-cw)/Math.max(n-1,1)));
     var totalW=cw+(n-1)*ovlap;
@@ -340,7 +351,6 @@ function layoutHand(pi,animate){
       box.appendChild(el);
     }
   } else {
-    /* vertical stack for left(3) / right(2) */
     var ovlapV=Math.max(10,Math.min(26,130/Math.max(n,1)));
     var totalH=ch+(n-1)*ovlapV;
     box.style.width=cw+"px";
@@ -369,9 +379,7 @@ function layoutHand(pi,animate){
   }
 }
 
-/* ── drag-to-shuffle (mouse + touch) ── */
 function setupDrag(el,idx,box){
-  /* Mouse drag */
   el.draggable=true;
   el.addEventListener("dragstart",function(e){
     dragSrc=idx;
@@ -395,11 +403,10 @@ function setupDrag(el,idx,box){
     players[HUMAN][idx]=tmp;
     dragSrc=-1;
     layoutHand(HUMAN,false);
-    setHint("Cards reshuffled — Joker hidden! 🤫");
+    setHint("Cards rearranged. Joker hidden. 🤫");
     setTimeout(updateHint,2000);
   });
 
-  /* Touch drag */
   var tSrcIdx=-1,tStartX=0,tStartY=0;
   el.addEventListener("touchstart",function(e){
     tSrcIdx=idx;
@@ -425,13 +432,12 @@ function setupDrag(el,idx,box){
       players[HUMAN][tSrcIdx]=players[HUMAN][tgt];
       players[HUMAN][tgt]=tmp;
       layoutHand(HUMAN,false);
-      setHint("Cards reshuffled! 🤫");
+      setHint("Cards rearranged! 🤫");
       setTimeout(updateHint,2000);
     }
   },{passive:true});
 }
 
-/* ── labels ── */
 function updateLabels(){
   for(var pi=0;pi<4;pi++){
     var h=players[pi];
@@ -451,7 +457,6 @@ function updateLabels(){
 }
 function addB(p,t,c){var s=document.createElement("span");s.className="badge "+c;s.textContent=t;p.appendChild(s);}
 
-/* ── deck pile ── */
 function renderDeck(n){
   var p=document.getElementById("deckPile");p.innerHTML="";
   for(var i=0;i<Math.min(n,6);i++){
@@ -460,19 +465,18 @@ function renderDeck(n){
   }
 }
 
-/* ── game ── */
 function startGame(){
   clearTimeout(timer);
   active=true;current=0;offering=-1;
   deal(buildDeck());
   players=players.map(removePairs);
   renderDeck(10);
-  setStatus("Dealing…");setHint("");
+  setStatus("Dealing the deck…");setHint("");
   for(var pi=0;pi<4;pi++)layoutHand(pi,true);
   updateLabels();
   var maxCards=players.reduce(function(m,h){return Math.max(m,h.length);},0);
   timer=setTimeout(function(){
-    renderDeck(0);setStatus("Your move!");advanceTurn();
+    renderDeck(0);setStatus("Your move");advanceTurn();
   },maxCards*52+450);
 }
 
@@ -491,11 +495,10 @@ function checkEnd(){
 function endGame(w){
   active=false;clearTimeout(timer);
   var won=(w===HUMAN);
-  elOvTitle.textContent=won?"🎉 You Win!":"😅 You Lost!";
+  elOvTitle.textContent=won?"🎉 Victory!":"😅 Defeat";
   elOvMsg.innerHTML=won
-    ?"You held the <strong style='color:var(--gold)'>Joker</strong> until the end!"
-    :NAMES[w]+" held the Joker last and wins!";
-  /* remove old play-again button if any */
+    ?"You successfully held the <strong style='color:var(--gold-bright)'>Joker</strong> until the end!"
+    :NAMES[w]+" held the Joker last and wins the pot!";
   elOverlay.querySelectorAll(".again").forEach(function(b){b.remove();});
   var btn=document.createElement("button");btn.className="ovBtn again";btn.textContent="Play Again";
   btn.addEventListener("click",function(){elOverlay.classList.remove("show");startGame();});
@@ -511,19 +514,18 @@ function advanceTurn(){
   for(var pi=0;pi<4;pi++)layoutHand(pi,false);
   updateLabels();updateHint();
   if(current!==HUMAN){
-    setStatus(NAMES[current]+" thinks…");
+    setStatus(NAMES[current]+" is thinking…");
     timer=setTimeout(cpuMove,750+0|Math.random()*900);
   } else {
-    setStatus("Pick from "+NAMES[offering]);
+    setStatus("Pick a card from "+NAMES[offering]);
   }
 }
 
 function updateHint(){
   if(!active)return;
-  setHint(current===HUMAN?"Tap a glowing card · Drag your cards to reorder":"");
+  setHint(current===HUMAN?"Select a glowing card · Drag your cards to shuffle":"");
 }
 
-/* CPU picks randomly from ANY position */
 function cpuMove(){
   if(!active)return;
   var h=players[offering];if(!h||!h.length){advanceTurn();return;}
@@ -550,7 +552,7 @@ function pickCard(fromIdx,cardIdx){
   players[current].push(card);
   players[current]=removePairs(players[current]);
   var who=(current===HUMAN)?"You picked":NAMES[current]+" picked";
-  setStatus(card===JOKER?who+": 🃏 Hold it!":who+": "+cardLbl(card));
+  setStatus(card===JOKER?who+": 🃏 The Joker!":who+": "+cardLbl(card));
   for(var pi=0;pi<4;pi++)layoutHand(pi,false);
   updateLabels();renderDeck(0);
   var prev=current;
@@ -562,6 +564,5 @@ function setHint(m){document.getElementById("hint").textContent=m;}
 
 })();
 </script>
-
 </body>
 </html>
